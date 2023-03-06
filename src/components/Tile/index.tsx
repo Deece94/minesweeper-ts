@@ -42,9 +42,9 @@ type TileProps = {
 		rowIndex: number,
 		columnIndex: number
 	) => void;
-	display: string | number;
 	rowIndex: number;
 	columnIndex: number;
+	status: string;
 } & TileType;
 
 // Tile for minesweeper. Can display a number or a mine
@@ -52,15 +52,26 @@ const Tile = ({
 	handleClick,
 	rowIndex,
 	columnIndex,
+	status,
 	...tileProps
 }: TileProps) => {
-	const displayValue = () => {
-		if (tileProps.isMine) {
-			return "M";
+	const displayVisible = () => {
+		if (tileProps.isMine && tileProps.isVisible) {
+			return "💥";
 		} else if (tileProps.minesAround === 0) {
 			return "";
 		} else {
 			return tileProps.minesAround;
+		}
+	};
+
+	const displayNotVisible = () => {
+		if (status === "gameover" && tileProps.isMine) {
+			return "💣";
+		} else if (tileProps.isFlagged) {
+			return "🚩";
+		} else {
+			return "";
 		}
 	};
 
@@ -74,7 +85,7 @@ const Tile = ({
 				handleClick(e, rowIndex, columnIndex);
 			}}
 		>
-			{tileProps.isVisible ? displayValue() : tileProps.isFlagged ? "🚩" : ""}
+			{tileProps.isVisible ? displayVisible() : displayNotVisible()}
 		</TileContainer>
 	);
 };

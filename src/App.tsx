@@ -10,6 +10,7 @@ function App() {
 	const [mines, setMines] = useState<number>(0);
 
 	const [grid, setGrid] = useState<TileType[][]>([]);
+	const [status, setStatus] = useState<string>("playing");
 
 	const countMines = (
 		newGrid: TileType[][],
@@ -64,6 +65,7 @@ function App() {
 	};
 
 	const createBoard = () => {
+		setStatus("playing");
 		// Create a new grid with the specified number of rows and columns
 		if (rows <= 0 || columns <= 0 || mines <= 0) {
 			alert(`Invalid input. Rows, columns, and mines must be greater than 0.`);
@@ -117,23 +119,28 @@ function App() {
 		<div className='App'>
 			<input
 				type='number'
-				value={rows}
+				value={rows ?? ""}
 				onChange={(e) => setRows(e.target.valueAsNumber)}
 			/>
 			<input
 				type='number'
-				value={columns}
+				value={columns ?? ""}
 				onChange={(e) => setColumns(e.target.valueAsNumber)}
 			/>
 			<input
 				type='number'
-				value={mines}
+				value={mines ?? ""}
 				onChange={(e) => setMines(e.target.valueAsNumber)}
 			/>
 
 			<button onClick={createBoard}>Create Board</button>
 
-			<Board grid={grid} setGrid={setGrid} />
+			<Board
+				grid={grid}
+				setGrid={setGrid}
+				status={status}
+				setStatus={setStatus}
+			/>
 		</div>
 	);
 }
