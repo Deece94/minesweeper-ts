@@ -26,15 +26,11 @@ const Board = ({
 		rowIndex: number,
 		columnIndex: number
 	) => {
-		e.preventDefault();
-		e.stopPropagation();
-		console.log(e);
 		const newGrid = [...grid];
 
 		// Check if right or left click
 		if (e.button === 2) {
 			// Right click
-			console.log("Right click");
 			newGrid[rowIndex][columnIndex].isFlagged =
 				!newGrid[rowIndex][columnIndex].isFlagged;
 		} else {
@@ -58,11 +54,10 @@ const Board = ({
 					{row.map((tile, columnIndex) => (
 						<Tile
 							key={columnIndex}
-							handleClick={(e: React.MouseEvent) =>
-								handleClick(e, rowIndex, columnIndex)
-							}
-							isVisible={tile.isVisible}
-							display={tile.isMine ? "M" : tile.minesAround}
+							handleClick={handleClick}
+							rowIndex={rowIndex}
+							columnIndex={columnIndex}
+							{...tile}
 						/>
 					))}
 				</Row>

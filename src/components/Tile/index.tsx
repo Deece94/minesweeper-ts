@@ -1,11 +1,8 @@
 import { useMemo, useState } from "react";
 import styled from "styled-components";
+import { TileType } from "../../types";
 
-const TileContainer = styled.button<{
-	isVisible: boolean;
-	onClick: any;
-	onContextmenu: any;
-}>`
+const TileContainer = styled.button<{ isVisible: Boolean }>`
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -39,43 +36,45 @@ const TileContainer = styled.button<{
 	}}
 `;
 
-// Tile for minesweeper. Can display a number or a mine
-const Tile = ({
-	handleClick,
-	isVisible,
-	display,
-}: {
+type TileProps = {
 	handleClick: (
 		e: React.MouseEvent,
 		rowIndex: number,
 		columnIndex: number
 	) => void;
-	isVisible: boolean;
 	display: string | number;
-}) => {
+	rowIndex: number;
+	columnIndex: number;
+} & TileType;
+
+// Tile for minesweeper. Can display a number or a mine
+const Tile = ({
+	handleClick,
+	rowIndex,
+	columnIndex,
+	...tileProps
+}: TileProps) => {
 	const displayValue = () => {
-		if (display === 0) {
+		if (tileProps.isMine) {
+			return "M";
+		} else if (tileProps.minesAround === 0) {
 			return "";
 		} else {
-			return display;
+			return tileProps.minesAround;
 		}
 	};
-
-	useMemo(() => {
-		displayValue();
-	}, [display]);
 
 	return (
 		<TileContainer
 			className='tile'
-			onClick={handleClick}
-			isVisible={isVisible}
-			onContextmenu={(e) => {
+			onClick={(e: React.MouseEvent) => handleClick(e, rowIndex, columnIndex)}
+			isVisible={tileProps.isVisible}
+			onContextMenu={(e: React.MouseEvent) => {
 				e.preventDefault();
-				console.log("Right click");
+				handleClick(e, rowIndex, columnIndex);
 			}}
 		>
-			{isVisible ? displayValue() : ""}
+			{tileProps.isVisible ? displayValue() : tileProps.isFlagged ? "🚩" : ""}
 		</TileContainer>
 	);
 };
