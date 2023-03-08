@@ -1,3 +1,9 @@
+//TODO:
+// - Win condition
+// - Add a timer
+// - Page design
+// - Save results
+
 import { useState } from "react";
 
 import Board from "./components/Board";

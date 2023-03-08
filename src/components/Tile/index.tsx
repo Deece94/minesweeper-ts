@@ -68,7 +68,7 @@ const Tile = ({
 	const displayNotVisible = () => {
 		if (status === "gameover" && tileProps.isMine) {
 			return "💣";
-		} else if (tileProps.isFlagged) {
+		} else if (tileProps.isFlagged || status === "win") {
 			return "🚩";
 		} else {
 			return "";

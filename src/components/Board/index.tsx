@@ -15,6 +15,15 @@ const Row = styled.div`
 	flex-direction: row;
 `;
 
+const StatusBar = styled.div`
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 50px;
+`;
+
 const statuses = {
 	playing: "playing",
 	gameover: "gameover",
@@ -59,11 +68,10 @@ const Board = ({
 		if (newGrid[rowIndex][columnIndex].isMine) {
 			// Game over
 			setStatus("gameover");
-			alert("Game over");
 			return;
 		}
 
-		// Check if no mines around
+		// Check if no mines around before triggering surrounding tiles
 		if (newGrid[rowIndex][columnIndex].minesAround === 0) {
 			// trigger all surrounding tiles
 			triggerTile(rowIndex - 1, columnIndex - 1);
@@ -75,6 +83,19 @@ const Board = ({
 			triggerTile(rowIndex + 1, columnIndex);
 			triggerTile(rowIndex + 1, columnIndex + 1);
 		}
+	};
+
+	// Game is in win state if all non-mine tiles are visible
+	const isInWinState = () => {
+		// CHeck each tile and if a non-mine tile is not visible, return false
+		for (let i = 0; i < grid.length; i++) {
+			for (let j = 0; j < grid[0].length; j++) {
+				if (!grid[i][j].isMine && !grid[i][j].isVisible) {
+					return false;
+				}
+			}
+		}
+		return true;
 	};
 
 	const handleClick = (
@@ -97,11 +118,25 @@ const Board = ({
 			triggerTile(rowIndex, columnIndex);
 		}
 
+		// Check if win state
+		if (isInWinState()) {
+			setStatus("win");
+		}
+
 		setGrid(newGrid);
 	};
 
 	return (
 		<BoardContainer className='board'>
+			<StatusBar>
+				{status === "playing" ? (
+					<p>Time: </p>
+				) : status === "gameover" ? (
+					<p>Game over</p>
+				) : (
+					<p>You Win!!!</p>
+				)}
+			</StatusBar>
 			{grid.map((row, rowIndex) => (
 				<Row className='row' key={rowIndex}>
 					{row.map((tile, columnIndex) => (
