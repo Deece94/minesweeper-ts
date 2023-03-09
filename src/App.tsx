@@ -1,13 +1,13 @@
 //TODO:
-// - Win condition
-// - Add a timer
 // - Page design
 // - Save results
+// - Make timer accurate
+// -
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Board from "./components/Board";
-import { TileType } from "./types";
+import { TileType, Statuses } from "./types";
 
 // App for creating a minesweeper grid
 function App() {
@@ -16,7 +16,30 @@ function App() {
 	const [mines, setMines] = useState<number>(0);
 
 	const [grid, setGrid] = useState<TileType[][]>([]);
-	const [status, setStatus] = useState<string>("playing");
+	const [status, setStatus] = useState<string>(Statuses.waiting);
+	const [time, setTime] = useState<number>(0);
+	const [timer, setTimer] = useState<number | null>(null);
+
+	// When the status changes to playing start a timer from 0
+	// When the status changes to somethign else reset and clear the timer
+	useEffect(() => {
+		if (status === Statuses.playing) {
+			setTime(0);
+			const newTimer = setInterval(() => {
+				setTime((time) => time + 10);
+			}, 10);
+			setTimer(newTimer);
+		} else if (status === Statuses.gameover || status === Statuses.waiting) {
+			setTime(0);
+			if (timer) {
+				clearInterval(timer);
+			}
+		} else {
+			if (timer) {
+				clearInterval(timer);
+			}
+		}
+	}, [status]);
 
 	const countMines = (
 		newGrid: TileType[][],
@@ -71,7 +94,9 @@ function App() {
 	};
 
 	const createBoard = () => {
-		setStatus("playing");
+		console.log(
+			`Creating a new board with ${rows} rows, ${columns} columns, and ${mines} mines.`
+		);
 		// Create a new grid with the specified number of rows and columns
 		if (rows <= 0 || columns <= 0 || mines <= 0) {
 			alert(`Invalid input. Rows, columns, and mines must be greater than 0.`);
@@ -83,6 +108,8 @@ function App() {
 			alert(`Invalid input. There must be more tiles than mines.`);
 			return;
 		}
+
+		setTime(0);
 
 		// Create a new grid with mines randomly placed in it
 		const newGrid: TileType[][] = [];
@@ -119,6 +146,7 @@ function App() {
 
 		// Set the grid to the new grid
 		setGrid(newGrid);
+		setStatus(() => Statuses.playing);
 	};
 
 	return (
@@ -146,6 +174,7 @@ function App() {
 				setGrid={setGrid}
 				status={status}
 				setStatus={setStatus}
+				time={time}
 			/>
 		</div>
 	);

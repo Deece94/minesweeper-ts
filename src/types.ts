@@ -4,3 +4,10 @@ export type TileType = {
 	minesAround: number;
 	isFlagged: boolean;
 };
+
+export enum Statuses {
+	waiting = "waiting",
+	playing = "playing",
+	gameover = "gameover",
+	win = "win",
+}

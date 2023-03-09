@@ -1,7 +1,7 @@
 import Tile from "../Tile";
 import styled from "styled-components";
-import { TileType } from "../../types";
-import { useState } from "react";
+import { TileType, Statuses } from "../../types";
+import { useEffect, useState } from "react";
 
 const BoardContainer = styled.div`
 	display: flex;
@@ -24,22 +24,18 @@ const StatusBar = styled.div`
 	height: 50px;
 `;
 
-const statuses = {
-	playing: "playing",
-	gameover: "gameover",
-	win: "win",
-};
-
 const Board = ({
 	grid,
 	setGrid,
 	status,
 	setStatus,
+	time,
 }: {
 	grid: TileType[][];
 	setGrid: (grid: TileType[][]) => void;
 	status: string;
 	setStatus: (status: string) => void;
+	time: number;
 }) => {
 	const triggerTile = (rowIndex: number, columnIndex: number) => {
 		// Check if out of bounds
@@ -67,7 +63,7 @@ const Board = ({
 		// Check if mine
 		if (newGrid[rowIndex][columnIndex].isMine) {
 			// Game over
-			setStatus("gameover");
+			setStatus(Statuses.gameover);
 			return;
 		}
 
@@ -103,7 +99,7 @@ const Board = ({
 		rowIndex: number,
 		columnIndex: number
 	) => {
-		if (status === "gameover") {
+		if (status === Statuses.gameover || status === Statuses.win) {
 			return;
 		}
 
@@ -120,7 +116,7 @@ const Board = ({
 
 		// Check if win state
 		if (isInWinState()) {
-			setStatus("win");
+			setStatus(Statuses.win);
 		}
 
 		setGrid(newGrid);
@@ -129,13 +125,13 @@ const Board = ({
 	return (
 		<BoardContainer className='board'>
 			<StatusBar>
-				{status === "playing" ? (
-					<p>Time: </p>
-				) : status === "gameover" ? (
+				{status === Statuses.playing ? (
+					<p>Timer: {Math.floor(time / 1000)}</p>
+				) : status === Statuses.gameover ? (
 					<p>Game over</p>
-				) : (
-					<p>You Win!!!</p>
-				)}
+				) : status === Statuses.win ? (
+					<p>You Win!!! Time: {Math.floor(time / 1000)}</p>
+				) : null}
 			</StatusBar>
 			{grid.map((row, rowIndex) => (
 				<Row className='row' key={rowIndex}>
