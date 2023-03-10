@@ -1,13 +1,51 @@
 //TODO:
+// - Fix timer not stoping on win status
 // - Page design
 // - Save results
 // - Make timer accurate
-// -
+// - Make first click always safe
 
 import { useEffect, useState } from "react";
 
 import Board from "./components/Board";
 import { TileType, Statuses } from "./types";
+import styled from "styled-components";
+
+const AppContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 800px;
+	min-height: 100vh;
+	margin: auto;
+	padding-top: 50px;
+`;
+
+const Row = styled.div`
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	width: 100%;
+`;
+
+const StyledButton = styled.button`
+	background-color: #28252f;
+	border: none;
+	border-radius: 8px;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	&:hover {
+		background-color: #040405;
+	}
+`;
 
 // App for creating a minesweeper grid
 function App() {
@@ -21,7 +59,7 @@ function App() {
 	const [timer, setTimer] = useState<number | null>(null);
 
 	// When the status changes to playing start a timer from 0
-	// When the status changes to somethign else reset and clear the timer
+	// When the status changes to something else reset and clear the timer
 	useEffect(() => {
 		if (status === Statuses.playing) {
 			setTime(0);
@@ -35,7 +73,9 @@ function App() {
 				clearInterval(timer);
 			}
 		} else {
+			console.log("win");
 			if (timer) {
+				console.log("clearing timer");
 				clearInterval(timer);
 			}
 		}
@@ -149,26 +189,50 @@ function App() {
 		setStatus(() => Statuses.playing);
 	};
 
+	const setTemplate = (template: string) => {
+		if (template === "easy") {
+			setRows(9);
+			setColumns(9);
+			setMines(10);
+		} else if (template === "medium") {
+			setRows(16);
+			setColumns(16);
+			setMines(40);
+		} else if (template === "hard") {
+			setRows(16);
+			setColumns(30);
+			setMines(99);
+		}
+	};
+
 	return (
-		<div className='App'>
-			<input
-				type='number'
-				value={rows ?? ""}
-				onChange={(e) => setRows(e.target.valueAsNumber)}
-			/>
-			<input
-				type='number'
-				value={columns ?? ""}
-				onChange={(e) => setColumns(e.target.valueAsNumber)}
-			/>
-			<input
-				type='number'
-				value={mines ?? ""}
-				onChange={(e) => setMines(e.target.valueAsNumber)}
-			/>
+		<AppContainer>
+			<Row>
+				<StyledButton onClick={() => setTemplate("easy")}>Easy</StyledButton>
+				<StyledButton onClick={() => setTemplate("medium")}>
+					Medium
+				</StyledButton>
+				<StyledButton onClick={() => setTemplate("hard")}>Hard</StyledButton>
+			</Row>
+			<Row>
+				<input
+					type='number'
+					value={rows ?? ""}
+					onChange={(e) => setRows(e.target.valueAsNumber)}
+				/>
+				<input
+					type='number'
+					value={columns ?? ""}
+					onChange={(e) => setColumns(e.target.valueAsNumber)}
+				/>
+				<input
+					type='number'
+					value={mines ?? ""}
+					onChange={(e) => setMines(e.target.valueAsNumber)}
+				/>
 
-			<button onClick={createBoard}>Create Board</button>
-
+				<StyledButton onClick={createBoard}>Create Board</StyledButton>
+			</Row>
 			<Board
 				grid={grid}
 				setGrid={setGrid}
@@ -176,7 +240,7 @@ function App() {
 				setStatus={setStatus}
 				time={time}
 			/>
-		</div>
+		</AppContainer>
 	);
 }
 
