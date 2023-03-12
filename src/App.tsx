@@ -1,5 +1,4 @@
 //TODO:
-// - Fix timer not stoping on win status
 // - Page design
 // - Save results
 // - Make timer accurate
@@ -73,9 +72,7 @@ function App() {
 				clearInterval(timer);
 			}
 		} else {
-			console.log("win");
 			if (timer) {
-				console.log("clearing timer");
 				clearInterval(timer);
 			}
 		}
@@ -134,9 +131,6 @@ function App() {
 	};
 
 	const createBoard = () => {
-		console.log(
-			`Creating a new board with ${rows} rows, ${columns} columns, and ${mines} mines.`
-		);
 		// Create a new grid with the specified number of rows and columns
 		if (rows <= 0 || columns <= 0 || mines <= 0) {
 			alert(`Invalid input. Rows, columns, and mines must be greater than 0.`);
