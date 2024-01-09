@@ -13,12 +13,12 @@ import styled from "styled-components";
 const AppContainer = styled.div`
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	justify-content: start;
 	align-items: center;
-	width: 800px;
 	min-height: 100vh;
 	margin: auto;
 	padding-top: 50px;
+	background-color: #f2f2f2;
 `;
 
 const Row = styled.div`
@@ -26,7 +26,7 @@ const Row = styled.div`
 	flex-direction: row;
 	justify-content: space-around;
 	align-items: center;
-	width: 100%;
+	width: 800px;
 `;
 
 const StyledButton = styled.button`
@@ -44,6 +44,18 @@ const StyledButton = styled.button`
 	&:hover {
 		background-color: #040405;
 	}
+`;
+
+const Heading = styled.h1`
+	font-size: 2.5em;
+	text-align: center;
+	color: palevioletred;
+`;
+
+const Description = styled.p`
+	font-size: 1em;
+	text-align: center;
+	color: palevioletred;
 `;
 
 // App for creating a minesweeper grid
@@ -201,6 +213,30 @@ function App() {
 
 	return (
 		<AppContainer>
+			<Row>
+				<Heading>Minesweeper</Heading>
+			</Row>
+			<Row>
+				<Description>
+					This Minesweeper project was created by{" "}
+					<a href='https://www.dylancollar.com' target='_blank'>
+						Dylan Collar
+					</a>{" "}
+					to practise using and explore the web technologies React, Typescript,
+					Vite and Styled Components.
+				</Description>
+			</Row>
+			<Row>
+				<Description>
+					To play Minesweeper, create a board using the options below. Then
+					click on a tile to reveal what is underneath. If you reveal a mine,
+					you lose. If you reveal a number, that number indicates the number of
+					mines around that tile. If you reveal a blank tile, all adjacent tiles
+					will be revealed. Right click on a tile to flag it as a mine. The goal
+					is to reveal all tiles that are not mines. Good luck!
+				</Description>
+			</Row>
+
 			<Row>
 				<StyledButton onClick={() => setTemplate("easy")}>Easy</StyledButton>
 				<StyledButton onClick={() => setTemplate("medium")}>

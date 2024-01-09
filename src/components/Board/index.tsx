@@ -122,15 +122,24 @@ const Board = ({
 		setGrid(newGrid);
 	};
 
+	const secondsPlayed = Math.floor(time / 1000);
+
 	return (
 		<BoardContainer className='board'>
 			<StatusBar>
 				{status === Statuses.playing ? (
-					<p>Timer: {Math.floor(time / 1000)}</p>
+					<p>
+						Timer: {secondsPlayed > 60 && `${Math.floor(secondsPlayed / 60)}m `}
+						{secondsPlayed % 60}s
+					</p>
 				) : status === Statuses.gameover ? (
 					<p>Game over</p>
 				) : status === Statuses.win ? (
-					<p>You Win!!! Time: {Math.floor(time / 1000)}</p>
+					<p>
+						You Win!!! Time:{" "}
+						{secondsPlayed > 60 && `${Math.floor(secondsPlayed / 60)}m `}
+						{secondsPlayed % 60}s
+					</p>
 				) : null}
 			</StatusBar>
 			{grid.map((row, rowIndex) => (
