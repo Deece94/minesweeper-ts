@@ -1,4 +1,4 @@
-//TODO:
+// TODO:
 // - Page design
 // - Save results
 // - Make timer accurate
@@ -7,8 +7,9 @@
 import { useEffect, useState } from "react";
 
 import Board from "./components/Board";
-import { TileType, Statuses } from "./types";
+import { TileType, StatusType } from "./types";
 import styled from "styled-components";
+import TimerProvider from "./components/Board/TimerProvider";
 
 const AppContainer = styled.div`
 	display: flex;
@@ -52,31 +53,10 @@ function App() {
 	const [columns, setColumns] = useState<number>(0);
 	const [mines, setMines] = useState<number>(0);
 
-	const [grid, setGrid] = useState<TileType[][]>([]);
-	const [status, setStatus] = useState<string>(Statuses.waiting);
-	const [time, setTime] = useState<number>(0);
-	const [timer, setTimer] = useState<number | null>(null);
+	// const [inputData, setInputData]
 
-	// When the status changes to playing start a timer from 0
-	// When the status changes to something else reset and clear the timer
-	useEffect(() => {
-		if (status === Statuses.playing) {
-			setTime(0);
-			const newTimer = setInterval(() => {
-				setTime((time) => time + 10);
-			}, 10);
-			setTimer(newTimer);
-		} else if (status === Statuses.gameover || status === Statuses.waiting) {
-			setTime(0);
-			if (timer) {
-				clearInterval(timer);
-			}
-		} else {
-			if (timer) {
-				clearInterval(timer);
-			}
-		}
-	}, [status]);
+	const [grid, setGrid] = useState<TileType[][]>([]);
+	const [status, setStatus] = useState<StatusType>("unGenerated");
 
 	const countMines = (
 		newGrid: TileType[][],
@@ -143,8 +123,29 @@ function App() {
 			return;
 		}
 
-		setTime(0);
+		// Create a new grid with no mines yet. They are placed on first click
+		const newGrid: TileType[][] = [];
+		for (let i = 0; i < rows; i++) {
+			newGrid.push([]);
+			for (let j = 0; j < columns; j++) {
+				newGrid[i].push({
+					isMine: false,
+					isVisible: false,
+					minesAround: 0,
+					isFlagged: false,
+				});
+			}
+		}
 
+		// Set the grid to the new grid
+		setGrid(newGrid);
+		setStatus(() => "waiting");
+	};
+
+	function placeMines(
+		startingRow: number,
+		startingColumn: number
+	): TileType[][] {
 		// Create a new grid with mines randomly placed in it
 		const newGrid: TileType[][] = [];
 		for (let i = 0; i < rows; i++) {
@@ -165,11 +166,17 @@ function App() {
 			const rowIndex = Math.floor(Math.random() * rows);
 			const columnIndex = Math.floor(Math.random() * columns);
 
-			if (newGrid[rowIndex][columnIndex].isMine === false) {
+			// If tile is not a mine and is not the starting tile, place a mine
+			if (
+				newGrid[rowIndex][columnIndex].isMine === false &&
+				!(rowIndex === startingRow && columnIndex === startingColumn)
+			) {
 				newGrid[rowIndex][columnIndex].isMine = true;
 				minesPlaced++;
 			}
 		}
+
+		console.log(minesPlaced);
 
 		// Count the number of mines around each tile
 		for (let i = 0; i < rows; i++) {
@@ -179,9 +186,10 @@ function App() {
 		}
 
 		// Set the grid to the new grid
-		setGrid(newGrid);
-		setStatus(() => Statuses.playing);
-	};
+		// setGrid(newGrid);
+		setStatus(() => "playing");
+		return newGrid;
+	}
 
 	const setTemplate = (template: string) => {
 		if (template === "easy") {
@@ -200,41 +208,43 @@ function App() {
 	};
 
 	return (
-		<AppContainer>
-			<Row>
-				<StyledButton onClick={() => setTemplate("easy")}>Easy</StyledButton>
-				<StyledButton onClick={() => setTemplate("medium")}>
-					Medium
-				</StyledButton>
-				<StyledButton onClick={() => setTemplate("hard")}>Hard</StyledButton>
-			</Row>
-			<Row>
-				<input
-					type='number'
-					value={rows ?? ""}
-					onChange={(e) => setRows(e.target.valueAsNumber)}
-				/>
-				<input
-					type='number'
-					value={columns ?? ""}
-					onChange={(e) => setColumns(e.target.valueAsNumber)}
-				/>
-				<input
-					type='number'
-					value={mines ?? ""}
-					onChange={(e) => setMines(e.target.valueAsNumber)}
-				/>
+		<TimerProvider status={status}>
+			<AppContainer>
+				<Row>
+					<StyledButton onClick={() => setTemplate("easy")}>Easy</StyledButton>
+					<StyledButton onClick={() => setTemplate("medium")}>
+						Medium
+					</StyledButton>
+					<StyledButton onClick={() => setTemplate("hard")}>Hard</StyledButton>
+				</Row>
+				<Row>
+					<input
+						type='number'
+						value={rows ?? ""}
+						onChange={(e) => setRows(e.target.valueAsNumber)}
+					/>
+					<input
+						type='number'
+						value={columns ?? ""}
+						onChange={(e) => setColumns(e.target.valueAsNumber)}
+					/>
+					<input
+						type='number'
+						value={mines ?? ""}
+						onChange={(e) => setMines(e.target.valueAsNumber)}
+					/>
 
-				<StyledButton onClick={createBoard}>Create Board</StyledButton>
-			</Row>
-			<Board
-				grid={grid}
-				setGrid={setGrid}
-				status={status}
-				setStatus={setStatus}
-				time={time}
-			/>
-		</AppContainer>
+					<StyledButton onClick={createBoard}>Create Board</StyledButton>
+				</Row>
+				<Board
+					grid={grid}
+					setGrid={setGrid}
+					status={status}
+					setStatus={setStatus}
+					placeMines={placeMines}
+				/>
+			</AppContainer>{" "}
+		</TimerProvider>
 	);
 }
 

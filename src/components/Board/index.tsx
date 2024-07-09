@@ -1,7 +1,9 @@
 import Tile from "../Tile";
 import styled from "styled-components";
-import { TileType, Statuses } from "../../types";
-import { useEffect, useState } from "react";
+import { TileType, StatusType } from "../../types";
+import { TimerApiContext } from "./TimerProvider";
+import StatusBar from "./Statusbar";
+import { useContext } from "react";
 
 const BoardContainer = styled.div`
 	display: flex;
@@ -15,28 +17,22 @@ const Row = styled.div`
 	flex-direction: row;
 `;
 
-const StatusBar = styled.div`
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	height: 50px;
-`;
-
 const Board = ({
 	grid,
 	setGrid,
 	status,
 	setStatus,
-	time,
+	placeMines,
 }: {
 	grid: TileType[][];
 	setGrid: (grid: TileType[][]) => void;
-	status: string;
-	setStatus: (status: string) => void;
-	time: number;
+	status: StatusType;
+	setStatus: (status: StatusType) => void;
+	placeMines: Function;
 }) => {
+	const { resetTimer, stopTimer } = useContext(TimerApiContext);
+	console.log("board");
+
 	const triggerTile = (rowIndex: number, columnIndex: number) => {
 		// Check if out of bounds
 		if (rowIndex < 0 || rowIndex >= grid.length) {
@@ -63,7 +59,7 @@ const Board = ({
 		// Check if mine
 		if (newGrid[rowIndex][columnIndex].isMine) {
 			// Game over
-			setStatus(Statuses.gameover);
+			setStatus("gameover");
 			return;
 		}
 
@@ -82,11 +78,11 @@ const Board = ({
 	};
 
 	// Game is in win state if all non-mine tiles are visible
-	const isInWinState = () => {
+	const isInWinState = (newGrid: TileType[][]) => {
 		// CHeck each tile and if a non-mine tile is not visible, return false
-		for (let i = 0; i < grid.length; i++) {
-			for (let j = 0; j < grid[0].length; j++) {
-				if (!grid[i][j].isMine && !grid[i][j].isVisible) {
+		for (let i = 0; i < newGrid.length; i++) {
+			for (let j = 0; j < newGrid[0].length; j++) {
+				if (!newGrid[i][j].isMine && !newGrid[i][j].isVisible) {
 					return false;
 				}
 			}
@@ -99,11 +95,18 @@ const Board = ({
 		rowIndex: number,
 		columnIndex: number
 	) => {
-		if (status === Statuses.gameover || status === Statuses.win) {
+		if (status === "gameover" || status === "win") {
 			return;
 		}
 
-		const newGrid = [...grid];
+		// If first click, place mines
+		let newGrid; // If the first click then the actual grid will be being updated by the setstate still, use the returned on instead
+		if (status === "waiting") {
+			newGrid = placeMines(rowIndex, columnIndex);
+			resetTimer();
+		} else {
+			newGrid = [...grid];
+		}
 
 		// Check if right or left click
 		if (e.button === 2) {
@@ -115,8 +118,9 @@ const Board = ({
 		}
 
 		// Check if win state
-		if (isInWinState()) {
-			setStatus(Statuses.win);
+		if (isInWinState(newGrid)) {
+			setStatus("win");
+			stopTimer();
 		}
 
 		setGrid(newGrid);
@@ -124,15 +128,7 @@ const Board = ({
 
 	return (
 		<BoardContainer className='board'>
-			<StatusBar>
-				{status === Statuses.playing ? (
-					<p>Timer: {Math.floor(time / 1000)}</p>
-				) : status === Statuses.gameover ? (
-					<p>Game over</p>
-				) : status === Statuses.win ? (
-					<p>You Win!!! Time: {Math.floor(time / 1000)}</p>
-				) : null}
-			</StatusBar>
+			<StatusBar status={status} />
 			{grid.map((row, rowIndex) => (
 				<Row className='row' key={rowIndex}>
 					{row.map((tile, columnIndex) => (
