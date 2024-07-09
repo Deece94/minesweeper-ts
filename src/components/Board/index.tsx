@@ -126,6 +126,8 @@ const Board = ({
 		setGrid(newGrid);
 	};
 
+	const secondsPlayed = Math.floor(time / 1000);
+
 	return (
 		<BoardContainer className='board'>
 			<StatusBar status={status} />
