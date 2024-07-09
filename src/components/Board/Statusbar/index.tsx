@@ -20,7 +20,10 @@ const StatusBar = ({ status }: { status: StatusType }) => {
 	return (
 		<StatusBarStyle>
 			{status === "playing" || status === "waiting" ? (
-				<p>Timer: {timer}s</p>
+				<p>
+					Timer: {timer > 60 && `${Math.floor(timer / 60)}m `}
+					{timer % 60}s
+				</p>
 			) : status === "gameover" ? (
 				<p>Game over</p>
 			) : status === "win" ? (
